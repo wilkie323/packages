@@ -23,4 +23,3 @@ See [LICENSE](LICENSE) file.
 ## Package Guidelines
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) file.
-
