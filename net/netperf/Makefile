@@ -14,7 +14,9 @@ PKG_LICENSE:=Custom
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=ftp://ftp.netperf.org/netperf/
-PKG_MD5SUM:=ad1c5342d61f297c417a93133aeba65a
+PKG_HASH:=842af17655835c8be7203808c3393e6cb327a8067f3ed1f1053eb78b4e40375a
+
+PKG_CPE_ID:=cpe:/a:netperf:netperf
 
 include $(INCLUDE_DIR)/package.mk
 

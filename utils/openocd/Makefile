@@ -8,18 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openocd
-PKG_VERSION:=v0.9.0
-PKG_RELEASE:=1
+PKG_SOURCE_VERSION:=0.10.0
+PKG_VERSION:=v$(PKG_SOURCE_VERSION)
+PKG_RELEASE:=2
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git://git.code.sf.net/p/openocd/code
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=$(PKG_VERSION)
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=@SF/openocd
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_SOURCE_VERSION)
+PKG_HASH:=7312e7d680752ac088b8b8f2b5ba3ff0d30e0a78139531847be4b75c101316ae
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 
 PKG_MAINTAINER:=Paul Fertser <fercerpav@gmail.com>
+PKG_CPE_ID:=cpe:/a:openocd:open_on-chip_debugger
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -59,10 +60,7 @@ CONFIGURE_ARGS += \
 	--disable-werror \
 	MAKEINFO=true \
 	--enable-dummy \
-	--enable-sysfsgpio \
-	--enable-usb_blaster_libftdi \
-        --enable-openjtag_ftdi \
-        --enable-presto_libftdi
+	--enable-sysfsgpio
 
 define Build/Compile
         +$(MAKE_VARS) \

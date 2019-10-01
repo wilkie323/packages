@@ -8,29 +8,31 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libgd
-PKG_VERSION:=2.1.1
-PKG_RELEASE:=1
+PKG_VERSION:=2.2.5
+PKG_RELEASE:=4
 
-PKG_SOURCE:=gd-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/libgd/libgd/archive
-PKG_MD5SUM:=e91a1a99903e460e7ba00a794e72cc1e
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=https://github.com/$(PKG_NAME)/$(PKG_NAME)/releases/download/gd-$(PKG_VERSION)/
+PKG_HASH:=8c302ccbf467faec732f0741a859eef4ecae22fea2d2ab87467be940842bde51
+
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:libgd:gd_graphics_library
 
-PKG_FIXUP:=autoreconf
-
-PKG_INSTALL:=1
+CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DIR:=$(BUILD_DIR)/libgd-gd-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/libgd
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libjpeg +libpng
+  DEPENDS:=+libjpeg +libpng +libwebp +LIBGD_TIFF:libtiff +LIBGD_FREETYPE:libfreetype
   TITLE:=The GD graphics library
-  URL:=http://www.libgd.org/
+  URL:=https://libgd.github.io/
+  MENU:=1
 endef
 
 define Package/libgd/description
@@ -38,43 +40,54 @@ define Package/libgd/description
   programmers. GD creates PNG, JPEG and GIF images, among other formats.
 endef
 
-TARGET_CFLAGS += $(FPIC)
-
-CONFIGURE_ARGS += \
-	--enable-shared \
-	--enable-static \
-	--disable-rpath \
-	--without-x \
-	--without-fontconfig \
-	--without-freetype \
-	--with-jpeg=$(STAGING_DIR)/usr \
-	--with-png=$(STAGING_DIR)/usr \
-	--with-vpx=no \
-	--without-xpm \
-	--without-iconv
-
-CONFIGURE_VARS += \
-	ac_cv_header_iconv_h=no
-
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gdlib-config $(1)/usr/bin/
-	$(SED) \
-		's,^\(prefix\|exec_prefix\)=.*,\1=$(STAGING_DIR)/usr,g' \
-		$(1)/usr/bin/gdlib-config
-	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/entities.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/gd{,_io,cache,fontg,fontl,fontmb,fonts,fontt,fx}.h \
-		$(1)/usr/include/
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgd.{a,la,so*} $(1)/usr/lib/
-	$(INSTALL_DIR) $(2)/bin
-	$(LN) ../../usr/bin/gdlib-config $(2)/bin/
+define Package/libgd/config
+	if PACKAGE_libgd
+		config LIBGD_TIFF
+			bool "TIFF image support"
+			default n
+			help
+				Enable TIFF image support through libtiff
+	endif
+	if PACKAGE_libgd
+		config LIBGD_FREETYPE
+			bool "Freetype 2.x library support"
+			default n
+			help
+				Enable Freetype 2.x font engine support through libfreetype
+	endif
 endef
+
+TARGET_CFLAGS += $(FPIC) -ffunction-sections -fdata-sections -flto
+
+CMAKE_OPTIONS += \
+	-DENABLE_FONTCONFIG=OFF \
+	-DENABLE_ICONV=OFF \
+	-DENABLE_JPEG=ON \
+	-DENABLE_LIQ=OFF \
+	-DENABLE_PNG=ON \
+	-DENABLE_WEBP=ON \
+	-DENABLE_XPM=OFF \
+	-DZLIB_INCLUDE_DIR="$(STAGING_DIR)/usr"
+
+ifdef CONFIG_LIBGD_TIFF
+	CMAKE_OPTIONS += \
+		-DENABLE_TIFF=ON
+else
+	CMAKE_OPTIONS += \
+		-DENABLE_TIFF=OFF
+endif
+
+ifdef CONFIG_LIBGD_FREETYPE
+	CMAKE_OPTIONS += \
+		-DENABLE_FREETYPE=ON
+else
+	CMAKE_OPTIONS += \
+		-DENABLE_FREETYPE=OFF
+endif
 
 define Package/libgd/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgd.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgd.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libgd))

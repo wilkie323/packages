@@ -8,23 +8,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gstreamer1
-PKG_VERSION:=1.8.2
-PKG_RELEASE:=1
+PKG_VERSION:=1.16.0
+PKG_RELEASE:=2
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
 		Ted Hess <thess@kitschensync.net>
 
 PKG_LICENSE:=LGPLv2
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:gstreamer_project:gstreamer
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/gstreamer-$(PKG_VERSION)
 PKG_SOURCE:=gstreamer-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=http://gstreamer.freedesktop.org/src/gstreamer/
-PKG_MD5SUM:=9dbebe079c2ab2004ef7f2649fa317cabea1feb4fb5605c24d40744b90918341
+PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gstreamer
+PKG_HASH:=0e8e2f7118be437cba879353970cf83c2acced825ecb9275ba05d9186ef07c00
 
 PKG_FIXUP:=autoreconf
 PKG_REMOVE_FILES:=autogen.sh aclocal.m4
 
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -112,33 +114,37 @@ define Package/libgstreamer1/description
  .
  This package contains the GStreamer core library.
 endef
-  
+
 
 GST_VERSION:=1.0
 
 CONFIGURE_ARGS += \
 	--enable-static \
+	--disable-Bsymbolic \
+	--disable-benchmarks \
+	--disable-debug \
 	--disable-examples \
+	--disable-failing-tests \
+	--disable-fatal-warnings \
+	--disable-introspection \
+	--disable-glib-asserts \
+	--disable-gobject-cast-checks \
+	--disable-gst-tracer-hooks \
+	--disable-gst-debug \
+	--disable-gtk-doc-html \
+	--disable-rpath \
 	--disable-tests \
 	--disable-valgrind \
+	--without-dw \
 	--without-libiconv-prefix \
 	--without-libintl-prefix \
-	--without-x \
-
-EXTRA_LDFLAGS+= \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-	$(if $(ICONV_FULL),-liconv)
+	--without-unwind
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)
 	( cd $(PKG_INSTALL_DIR); $(CP) \
 		./usr/include/gstreamer-$(GST_VERSION)/* \
 		$(1)/usr/include/gstreamer-$(GST_VERSION)/ \
-	)
-	$(INSTALL_DIR) $(1)/usr/lib/gstreamer-$(GST_VERSION)/include/gst
-	( cd $(PKG_INSTALL_DIR); $(CP) \
-		./usr/lib/gstreamer-$(GST_VERSION)/include/gst/*.h \
-		$(1)/usr/lib/gstreamer-$(GST_VERSION)/include/gst \
 	)
 	$(INSTALL_DIR) $(1)/usr/lib
 	( cd $(PKG_INSTALL_DIR); $(CP) \

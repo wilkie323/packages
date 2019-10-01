@@ -8,27 +8,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mutt
-PKG_VERSION:=1.7.2
+PKG_VERSION:=1.12.1
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=ftp://ftp.mutt.org/pub/mutt/ \
-		https://bitbucket.org/mutt/mutt/downloads/
+PKG_SOURCE_URL:=https://bitbucket.org/mutt/mutt/downloads/ \
+		http://ftp.mutt.org/pub/mutt/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_MD5SUM:=15425c4c9946d58c22ccb44901544e6d
+PKG_HASH:=01c565406ec4ffa85db90b45ece2260b25fac3646cc063bbc20a242c6ed4210c
 
-PKG_LICENSE:=GPL-2.0+
-PKG_LICENSE_FILES:=GPL
 PKG_MAINTAINER:=Phil Eichinger <phil@zankapfel.net>
+PKG_LICENSE:=GPL-2.0-or-later
+PKG_LICENSE_FILES:=GPL
+PKG_CPE_ID:=cpe:/a:mutt:mutt
 
-
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/mutt
   SECTION:=mail
   CATEGORY:=Mail
-  DEPENDS:=+libopenssl +libncursesw +zlib
+  DEPENDS:=+libopenssl +libncursesw +terminfo +zlib
   TITLE:=Console mail client
   URL:=http://www.mutt.org/
 endef
@@ -44,7 +46,8 @@ CONFIGURE_ARGS += \
 	--enable-pop \
 	--enable-imap \
 	--with-ssl \
-	--without-idn
+	--without-idn \
+	--disable-doc
 
 define Package/mutt/install
 	$(INSTALL_DIR) $(1)/usr/bin

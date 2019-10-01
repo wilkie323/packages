@@ -8,25 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xmlrpc-c
-PKG_REV:=2640
-PKG_VERSION:=1.39.0
+PKG_VERSION:=1.51.03
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/xmlrpc-c/code/advanced
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_SOURCE_PROTO:=svn
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
+PKG_SOURCE_URL:=@SF/xmlrpc-c/Xmlrpc-c%20Super%20Stable/$(PKG_VERSION)
+PKG_HASH:=82f9a4f6dee03f6a58921d75a65949dd4f0036a4c268bce6a4343338932ec065
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>
 PKG_LICENSE:=VARIOUS
 PKG_LICENSE_FILES:=doc/COPYING
 
-PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
-PKG_BUILD_PARALLEL:=0
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -108,9 +103,10 @@ CONFIGURE_ARGS+= \
 	--disable-wininet-client \
 	--disable-libwww-client \
 	--disable-abyss-server \
+	--disable-cgi-server \
 	--disable-cplusplus \
 	--disable-abyss-threads \
-	--disable-cgi-server
+	--without-libwww-ssl
 
 ifeq ($(BUILD_VARIANT),libxml2)
 	CONFIGURE_ARGS += \

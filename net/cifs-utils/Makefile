@@ -8,16 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cifs-utils
-PKG_VERSION:=6.4
-PKG_RELEASE:=2
+PKG_VERSION:=6.9
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://ftp.samba.org/pub/linux-cifs/cifs-utils
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_MD5SUM:=b7d75b67fd3987952896d27256c7293d
+PKG_SOURCE_URL:=https://download.samba.org/pub/linux-cifs/cifs-utils/
+PKG_HASH:=18d8f1bf92c13c4d611502dbd6759e3a766ddc8467ec8a2eda3f589e40b9ac9c
 
 PKG_MAINTAINER:=Florian Fainelli <florian@openwrt.org>
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:debian:cifs-utils
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -26,16 +27,23 @@ define Package/cifsmount
   CATEGORY:=Network
   DEPENDS:=+kmod-fs-cifs
   TITLE:=CIFS mount utilities
-  URL:=http://wiki.samba.org/index.php/LinuxCIFS_utils
+  URL:=https://wiki.samba.org/index.php/LinuxCIFS_utils
 endef
 
-TARGET_CFLAGS += -Wno-error
+TARGET_CFLAGS += $(FPIC) -ffunction-sections -flto
+TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed
 
 CONFIGURE_ARGS += \
-	--exec-prefix=/usr \
-	--prefix=/ \
-	--with-libcap-ng=no \
-	--with-libcap=no
+	--disable-cifsupcall \
+	--disable-cifscreds \
+	--disable-cifsidmap \
+	--disable-cifsacl \
+	--disable-pam \
+	--disable-pie \
+	--disable-relro \
+	--disable-systemd \
+	--disable-man \
+	--without-libcap
 
 define Package/cifsmount/install
 	$(INSTALL_DIR) $(1)/usr/sbin

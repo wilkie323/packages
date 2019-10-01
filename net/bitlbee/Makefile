@@ -8,19 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bitlbee
-PKG_VERSION:=3.4.2
+PKG_VERSION:=3.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://get.bitlbee.org/src/ \
-		        http://distcache.FreeBSD.org/local-distfiles/brix/
-PKG_MD5SUM:=69c85554def74f314e3b6e390389a30b0e748f23ef37883e9d7545ee2c45ea57
+PKG_SOURCE_URL:=https://get.bitlbee.org/src
+PKG_HASH:=9f15de46f29b46bf1e39fc50bdf4515e71b17f551f3955094c5da792d962107e
 
 PKG_MAINTAINER:=Nikil Mehta <nikil.mehta@gmail.com>
-PKG_LICENSE:=GPL-2.0
+PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:bitlbee:bitlbee
 
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -30,7 +31,7 @@ define Package/bitlbee
   CATEGORY:=Network
   SUBMENU:=Instant Messaging
   TITLE:=An IRC to other chat networks gateway
-  URL:=http://www.bitlbee.org/
+  URL:=https://www.bitlbee.org/
   DEPENDS:=+glib2 +libopenssl $(ICONV_DEPENDS) $(INTL_DEPENDS)
 endef
 
@@ -58,7 +59,7 @@ define Build/Install
 	$(call Build/Install/Default,install install-etc)
 endef
 
-define Package/bitlbee/install	
+define Package/bitlbee/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/bitlbee $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/bitlbee

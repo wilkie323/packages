@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fping
-PKG_VERSION:=3.13
+PKG_VERSION:=4.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://fping.org/dist/
-PKG_MD5SUM:=4bb28efd1cb3d1240ae551dadc20daa852b1ba71bafe32e49ca629c1848e5720
+PKG_SOURCE_URL:=https://fping.org/dist/
+PKG_HASH:=7d339674b6a95aae1d8ad487ff5056fd95b474c3650938268f6a905c3771b64a
 
 PKG_MAINTAINER:=Nikil Mehta <nikil.mehta@gmail.com>
 PKG_LICENSE:=BSD-4-Clause
@@ -27,7 +27,7 @@ define Package/fping
   SECTION:=net
   CATEGORY:=Network
   TITLE:=sends ICMP ECHO_REQUEST packets to network hosts
-  URL:=http://fping.org/
+  URL:=https://fping.org/
 endef
 
 
@@ -46,7 +46,7 @@ CONFIGURE_ARGS+= \
 
 define Package/fping/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{fping,fping6} $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/fping $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,fping))

@@ -18,26 +18,39 @@
 # function from dnsmasq and use DHCPv4 MAC to find IPV6 SLAAC hosts.
 #
 # External Parameters
-#   "hostfile" = where this script will cache host DNS data
+#   "conffile" = Unbound configuration left for a restart
+#   "pipefile" = DNS entries for unbound-control standard input
 #   "domain" = text domain suffix
 #   "bslaac" = boolean, use DHCPv4 MAC to find GA and ULA IPV6 SLAAC
 #   "bisolt" = boolean, format <host>.<network>.<domain>. so you can isolate
+#   "bconf"  = boolean, write conf file with pipe records
 #
 ##############################################################################
 
 /^#/ {
   # We need to pick out DHCP v4 or v6 records
-  net = $2 ; id = $3 ; cls = $4 ; hst = $5 ; adr = $9 ;
+  net = $2 ; id = $3 ; cls = $4 ; hst = $5 ; adr = $9 ; adr2 = $10
   cdr = adr ;
+  cdr2 = adr2 ;
   sub( /\/.*/, "", adr ) ;
   sub( /.*\//, "", cdr ) ;
+  sub( /\/.*/, "", adr2 ) ;
+  sub( /.*\//, "", cdr2 ) ;
+  gsub( /_/, "-", hst ) ;
+
+
+  if ( hst !~ /^[[:alnum:]]([-[:alnum:]]*[[:alnum:]])?$/ ) {
+    # that is not a valid host name (RFC1123)
+    # above replaced common error of "_" in host name with "-"
+    hst = "-" ;
+  }
 
 
   if ( bisolt == 1 ) {
     # TODO: this might be better with a substituion option,
     # or per DHCP pool do-not-DNS option, but its getting busy here.
     fqdn = net
-    fqdn = sub( /\./, "-", fqdn ) ;
+    gsub( /\./, "-", fqdn ) ;
     fqdn = tolower( hst "." fqdn "." domain ) ;
   }
 
@@ -46,60 +59,102 @@
   }
 
 
-  if ( cls == "ipv4" ) {
-    if ( NF == 8 ) {
-      # odhcpd errata in field format without host name
-      adr = $8 ; hst = "-" ; cdr = adr ;
-      sub( /\/.*/, "", adr ) ;
-      sub( /.*\//, "", cdr ) ;
+  if ((cls == "ipv4") && (hst != "-") && (cdr == 32) && (NF == 9)) {
+    # IPV4 ; only for provided hostnames and full /32 assignments
+    # NF=9 ; odhcpd errata in field format without host name
+    ptr = adr ; qpr = "" ; split( ptr, ptr, "." ) ;
+    slaac = slaac_eui64( id ) ;
+
+
+    if ( bconf == 1 ) {
+      x = ( "local-data: \"" fqdn ". 300 IN A " adr "\"" ) ;
+      y = ( "local-data-ptr: \"" adr " 300 " fqdn "\"" ) ;
+      print ( x "\n" y "\n" ) > conffile ;
     }
 
 
-    if (( cdr == 32 ) && ( hst != "-" )) {
-      # only for provided hostnames and full /32 assignments
-      ptr = adr ; qpr = "" ; split( ptr, ptr, "." ) ;
-      slaac = slaac_eui64( id ) ;
-      for( i=1; i<=4; i++ ) { qpr = ( ptr[i] "." qpr) ; }
-
-      # DHCP A and PTR records with FQDN
-      x = ( fqdn ". 120 IN A " adr ) ;
-      y = ( qpr "in-addr.arpa. 120 IN PTR " fqdn ) ;
-      print ( x "\n" y ) > hostfile ;
+    # always create the pipe file
+    for( i=1; i<=4; i++ ) { qpr = ( ptr[i] "." qpr) ; }
+    x = ( fqdn ". 300 IN A " adr ) ;
+    y = ( qpr "in-addr.arpa. 300 IN PTR " fqdn ) ;
+    print ( x "\n" y ) > pipefile ;
 
 
-      if ((bslaac == 1) && (slaac != 0)) {
-        # UCI option to discover IPV6 routed SLAAC addresses
-        # NOT TODO - ping probe take too long when added in awk-rule loop
-        cmd = ( "ip -6 --oneline route show dev " net ) ;
+    if (( bslaac == 1 ) && ( slaac != 0 )) {
+      # UCI option to discover IPV6 routed SLAAC addresses
+      # NOT TODO - ping probe take too long when added in awk-rule loop
+      cmd = ( "ip -6 --oneline route show dev " net ) ;
 
 
-        while ( ( cmd | getline adr ) > 0 ) {
-          if ( substr( adr, 1, 5 ) <= "fd00:" ) {
-            # GA or ULA routed addresses only (not LL or MC)
-            sub( /\/.*/, "", adr ) ;
-            adr = ( adr slaac ) ;
-            if ( split( adr, tmp0, ":" ) >= 8 ) { sub( "::", ":", adr ) ; }
-            qpr = ipv6_ptr( adr ) ;
-            x = ( fqdn ". 120 IN AAAA " adr ) ;
-            y = ( qpr " 120 IN PTR " fqdn ) ;
-            print ( x "\n" y ) > hostfile ;
+      while ( ( cmd | getline adr ) > 0 ) {
+        if (( substr( adr, 1, 5 ) <= "fdff:" ) \
+        && ( index( adr, "::/" ) != 0 ) \
+        && ( index( adr, "anycast" ) == 0 ) \
+        && ( index( adr, "via" ) == 0 )) {
+          # GA or ULA routed addresses only (not LL or MC)
+          sub( /\/.*/, "", adr ) ;
+          adr = ( adr slaac ) ;
+
+
+          if ( split( adr, tmp0, ":" ) > 8 ) {
+            sub( "::", ":", adr ) ;
           }
+
+
+          if ( bconf == 1 ) {
+            x = ( "local-data: \"" fqdn ". 300 IN AAAA " adr "\"" ) ;
+            y = ( "local-data-ptr: \"" adr " 300 " fqdn "\"" ) ;
+            print ( x "\n" y "\n" ) > conffile ;
+          }
+
+
+          # always create the pipe file
+          qpr = ipv6_ptr( adr ) ;
+          x = ( fqdn ". 300 IN AAAA " adr ) ;
+          y = ( qpr ". 300 IN PTR " fqdn ) ;
+          print ( x "\n" y ) > pipefile ;
         }
-
-
-        close( cmd ) ;
       }
+
+
+      close( cmd ) ;
+    }
+  }
+
+  else if ((cls != "ipv4") && (hst != "-") && (9 <= NF) && (NF <= 10)) {
+    if (cdr == 128) {
+      if ( bconf == 1 ) {
+        x = ( "local-data: \"" fqdn ". 300 IN AAAA " adr "\"" ) ;
+        y = ( "local-data-ptr: \"" adr " 300 " fqdn "\"" ) ;
+        print ( x "\n" y "\n" ) > conffile ;
+      }
+
+
+      # only for provided hostnames and full /128 assignments
+      qpr = ipv6_ptr( adr ) ;
+      x = ( fqdn ". 300 IN AAAA " adr ) ;
+      y = ( qpr ". 300 IN PTR " fqdn ) ;
+      print ( x "\n" y ) > pipefile ;
+    }
+
+    if (cdr2 == 128) {
+      if ( bconf == 1 ) {
+        x = ( "local-data: \"" fqdn ". 300 IN AAAA " adr2 "\"" ) ;
+        y = ( "local-data-ptr: \"" adr2 " 300 " fqdn "\"" ) ;
+        print ( x "\n" y "\n" ) > conffile ;
+      }
+
+
+      # odhcp puts GA and ULA on the same line (position 9 and 10)
+      qpr2 = ipv6_ptr( adr2 ) ;
+      x = ( fqdn ". 300 IN AAAA " adr2 ) ;
+      y = ( qpr2 ". 300 IN PTR " fqdn ) ;
+      print ( x "\n" y ) > pipefile ;
     }
   }
 
   else {
-    if (( cdr == 128 ) && ( hst != "-" )) {
-      # only for provided hostnames and full /128 assignments
-      qpr = ipv6_ptr( adr ) ;
-      x = ( fqdn ". 120 IN AAAA " adr ) ;
-      y = ( qpr " 120 IN PTR " fqdn ) ;
-      print ( x "\n" y ) > hostfile ;
-    }
+    # dump non-conforming lease records
   }
 }
 
@@ -132,7 +187,7 @@ function ipv6_ptr( ipv6,    arpa, ary, end, i, j, new6, sz, start ) {
 
 ##############################################################################
 
-function slaac_eui64( mac,    ary, glbit, eui64 ) {  
+function slaac_eui64( mac,    ary, glbit, eui64 ) {
   if ( length(mac) >= 12 ) {
     # RFC2373 and use DHCPv4 registered MAC to find SLAAC addresses
     split( mac , ary , "" ) ;
@@ -143,12 +198,12 @@ function slaac_eui64( mac,    ary, glbit, eui64 ) {
     eui64 = ( ary[1] ary[2] ary[3] ary[4] ":" ary[5] ary[6] "ff:fe" ) ;
     eui64 = ( eui64 ary[7] ary[8] ":" ary[9] ary[10]  ary[11] ary[12] ) ;
   }
-  
+
   else {
     eui64 = 0 ;
   }
-  
-  
+
+
   return eui64 ;
 }
 

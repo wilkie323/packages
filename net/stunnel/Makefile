@@ -8,20 +8,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=stunnel
-PKG_VERSION:=5.38
-PKG_RELEASE:=1
+PKG_VERSION:=5.55
+PKG_RELEASE:=2
 
-PKG_LICENSE:=GPL-2.0+
-PKG_MAINTAINER:=Daniel Engberg <daniel.engberg.lists@pyret.net>
+PKG_LICENSE:=GPL-2.0-or-later
+PKG_MAINTAINER:=Florian Eckert <fe@dev.tdt.de>
 PKG_LICENSE_FILES:=COPYING COPYRIGHT.GPL
+PKG_CPE_ID:=cpe:/a:stunnel:stunnel
 
 PKG_SOURCE_URL:= \
 	http://ftp.nluug.nl/pub/networking/stunnel/ \
-	http://www.usenix.org.uk/mirrors/stunnel/
+	http://www.usenix.org.uk/mirrors/stunnel/ \
+	https://www.stunnel.org/downloads/ \
+	https://www.usenix.org.uk/mirrors/stunnel/archive/$(word 1, $(subst .,$(space),$(PKG_VERSION))).x/
+
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_MD5SUM:=09ada29ba1683ab1fd1f31d7bed8305127a0876537e836a40cb83851da034fd5
+PKG_HASH:=90de69f41c58342549e74c82503555a6426961b29af3ed92f878192727074c62
 
 PKG_FIXUP:=autoreconf
+PKG_FIXUP:=patch-libtool
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -44,6 +49,7 @@ endef
 
 define Package/stunnel/conffiles
 /etc/stunnel/stunnel.conf
+/etc/config/stunnel
 endef
 
 
@@ -74,6 +80,8 @@ define Package/stunnel/install
 	$(INSTALL_CONF) ./files/stunnel.conf $(1)/etc/stunnel/stunnel.conf
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/stunnel.init $(1)/etc/init.d/stunnel
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/stunnel.uci $(1)/etc/config/stunnel
 endef
 
 $(eval $(call BuildPackage,stunnel))

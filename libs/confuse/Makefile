@@ -8,16 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=confuse
-PKG_VERSION:=2.7
+PKG_VERSION:=3.2.2
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SAVANNAH/confuse
-PKG_MD5SUM:=45932fdeeccbb9ef4228f1c1a25e9c8f
-PKG_MAINTAINER:=Steven Barth <cyrus@openwrt.org>
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=https://github.com/martinh/libconfuse/releases/download/v$(PKG_VERSION)
+PKG_HASH:=a9240b653d02e8cfc52db48e8c4224426e528e1faa09b65e8ca08a197fad210b
+PKG_MAINTAINER:=
 PKG_LICENSE:=ISC
-
-PKG_FIXUP:=autoreconf
+PKG_CPE_ID:=cpe:/a:libconfuse_project:libconfuse
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -25,7 +24,7 @@ define Package/confuse
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=libConfuse is a configuration file parser library
-  URL:=http://www.nongnu.org/confuse/
+  URL:=https://github.com/martinh/libconfuse
 endef
 
 define Package/confuse/description
@@ -51,6 +50,7 @@ CONFIGURE_ARGS += \
 	--disable-rpath \
 	--without-libiconv-prefix \
 	--without-libintl-prefix \
+	--disable-examples
 
 MAKE_FLAGS += \
 	-C $(PKG_BUILD_DIR)/src \

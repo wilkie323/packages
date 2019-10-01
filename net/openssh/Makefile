@@ -8,22 +8,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openssh
-PKG_VERSION:=7.4p1
-PKG_RELEASE:=1
+PKG_VERSION:=8.0p1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://ftp.spline.de/pub/OpenBSD/OpenSSH/portable/ \
-		https://anorien.csc.warwick.ac.uk/pub/OpenBSD/OpenSSH/portable/ \
-		https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-PKG_MD5SUM:=b2db2a83caf66a208bb78d6d287cdaa3
+PKG_SOURCE_URL:=https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/ \
+		https://ftp.spline.de/pub/OpenBSD/OpenSSH/portable/ \
+		https://anorien.csc.warwick.ac.uk/pub/OpenBSD/OpenSSH/portable/
+PKG_HASH:=bd943879e69498e8031eb6b7f44d08cdc37d59a7ab689aa0b437320c3481fd68
 
 PKG_LICENSE:=BSD ISC
 PKG_LICENSE_FILES:=LICENCE
-
+PKG_CPE_ID:=cpe:/a:openssh:openssh
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
-
-PKG_BUILD_DEPENDS:=libopenssl
+PKG_REMOVE_FILES:=
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -51,6 +50,10 @@ endef
 define Package/openssh-client
 	$(call Package/openssh/Default)
 	TITLE+= client
+	ALTERNATIVES:=\
+		200:/usr/bin/ssh:/usr/bin/openssh-ssh \
+		200:/usr/bin/scp:/usr/bin/openssh-scp \
+
 endef
 
 define Package/openssh-client/description
@@ -93,6 +96,8 @@ endef
 
 define Package/openssh-server/conffiles
 /etc/ssh/sshd_config
+/etc/ssh/ssh_host_*_key
+/etc/ssh/ssh_host_*_key.pub
 endef
 
 define Package/openssh-server-pam
@@ -125,8 +130,6 @@ endef
 define Package/openssh-sftp-server
 	$(call Package/openssh/Default)
 	TITLE+= SFTP server
-	# Strip dependencies to avoid pulling in OpenSSL etc.
-	DEPENDS:=
 endef
 
 define Package/openssh-sftp-server/description
@@ -194,30 +197,8 @@ endif
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		LIBS="" \
-		sftp-server
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
 		STRIP_OPT="" \
 		all install
-endef
-
-define Package/openssh-client/preinst
-#!/bin/sh
-if [ -L $${IPKG_INSTROOT}/usr/bin/ssh ] && [ -L $${IPKG_INSTROOT}/usr/bin/scp ]; then
-	rm -f $${IPKG_INSTROOT}/usr/bin/ssh $${IPKG_INSTROOT}/usr/bin/scp;
-fi
-exit 0
-endef
-
-define Package/openssh-client/postrm
-#!/bin/sh
-rm -f $${IPKG_INSTROOT}/usr/bin/ssh $${IPKG_INSTROOT}/usr/bin/scp;
-if [ -x $${IPKG_INSTROOT}/usr/sbin/dropbear ] ; then
-	ln -s /usr/sbin/dropbear $${IPKG_INSTROOT}/usr/bin/ssh;
-	ln -s /usr/sbin/dropbear $${IPKG_INSTROOT}/usr/bin/scp;
-fi
-exit 0
 endef
 
 define Package/openssh-moduli/install
@@ -230,8 +211,8 @@ define Package/openssh-client/install
 	chmod 0700 $(1)/etc/ssh
 	$(CP) $(PKG_INSTALL_DIR)/etc/ssh/ssh_config $(1)/etc/ssh/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ssh $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/scp $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ssh $(1)/usr/bin/openssh-ssh
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/scp $(1)/usr/bin/openssh-scp
 endef
 
 define Package/openssh-client-utils/install
@@ -248,6 +229,7 @@ define Package/openssh-server/install
 	$(INSTALL_DIR) $(1)/etc/ssh
 	chmod 0700 $(1)/etc/ssh
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/ssh/sshd_config $(1)/etc/ssh/
+	sed -r -i 's,^#(HostKey /etc/ssh/ssh_host_(rsa|ecdsa|ed25519)_key)$$$$,\1,' $(1)/etc/ssh/sshd_config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/sshd.init $(1)/etc/init.d/sshd
 	$(INSTALL_DIR) $(1)/usr/sbin

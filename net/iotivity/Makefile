@@ -9,14 +9,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iotivity
 PKG_VERSION:=1.2.1
-PKG_RELEASE=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=${PKG_NAME}-${PKG_VERSION}.tar.gz
 PKG_SOURCE_URL:=http://mirrors.kernel.org/${PKG_NAME}/${PKG_VERSION}/
-PKG_MD5SUM:=7dcd9f0f48263c6b27a2c3d085dd7278b5c0feed1dfec8872a04899707fa23d8
+PKG_HASH:=7dcd9f0f48263c6b27a2c3d085dd7278b5c0feed1dfec8872a04899707fa23d8
 PKG_USE_MIPS16:=0
 
-PKG_BUILD_DEPENDS:=boost
+PKG_BUILD_DEPENDS:=boost python/host scons/host
 
 PKG_MAINTAINER:=Hauke Mehrtens <hauke.mehrtens@intel.com>
 
@@ -37,7 +37,7 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_PACKAGE_iotivity_SECURE
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/scons.mk
+include ../../devel/scons/scons.mk
 
 
 define Package/iotivity
@@ -163,6 +163,7 @@ PKG_TINYCBOR_NAME:=tinycbor
 PKG_TINYCBOR_PROTO:=git
 PKG_TINYCBOR_VERSION:=0.4
 PKG_TINYCBOR_SOURCE_VERSION:=a088996aa5f59b4f27f20fadad053d88bee357d4
+PKG_TINYCBOR_MIRROR_HASH:=77c600bd7362df8291148fa3d94ca780815ea2b74b817dca7565310ea0abff96
 PKG_TINYCBOR_SOURCE:=$(PKG_TINYCBOR_NAME)-$(PKG_TINYCBOR_VERSION).tar.bz2
 PKG_TINYCBOR_SOURCE_URL:=https://github.com/01org/tinycbor.git
 PKG_TINYCBOR_SUBDIR:=$(PKG_TINYCBOR_NAME)
@@ -170,6 +171,7 @@ PKG_TINYCBOR_SUBDIR:=$(PKG_TINYCBOR_NAME)
 define Download/iotivity-tinycbor
   FILE:=$(PKG_TINYCBOR_SOURCE)
   URL:=$(PKG_TINYCBOR_SOURCE_URL)
+  MIRROR_HASH:=$(PKG_TINYCBOR_MIRROR_HASH)
   PROTO:=$(PKG_TINYCBOR_PROTO)
   VERSION:=$(PKG_TINYCBOR_SOURCE_VERSION)
   SUBDIR:=$(PKG_TINYCBOR_SUBDIR)
@@ -225,7 +227,7 @@ endef
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		$(SCONS_VARS) \
-		scons \
+		python2.7 $(STAGING_DIR_HOST)/bin/scons.py \
 			$(SCONS_OPTIONS) \
 	)
 endef

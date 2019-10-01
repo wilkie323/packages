@@ -8,16 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=acme
-PKG_SOURCE_VERSION:=6d84da588b98733dd9c4f5b88440281ab1eb4989
-PKG_VERSION:=1.4
-PKG_RELEASE:=1
-PKG_LICENSE:=GPLv3
+PKG_VERSION:=2.8.1
+PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.xz
-PKG_SOURCE_URL:=git://github.com/Neilpang/acme.sh.git
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/Neilpang/acme.sh/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=4fc55b2112058e563616893fefb56c5ff4895a7e6327e9f8416797fdc44d98e3
+PKG_BUILD_DIR:=$(BUILD_DIR)/acme.sh-$(PKG_VERSION)
+
+PKG_MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
+PKG_LICENSE:=GPL-3.0-only
+PKG_LICENSE_FILES:=LICENSE.md
+
 LUCI_DIR:=/usr/lib/lua/luci
 
 include $(INCLUDE_DIR)/package.mk
@@ -25,10 +27,10 @@ include $(INCLUDE_DIR)/package.mk
 define Package/acme
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+curl +ca-certificates +openssl-util +netcat
+  DEPENDS:=+gnu-wget +ca-bundle +openssl-util +socat
   TITLE:=ACME (Letsencrypt) client
+  URL:=https://acme.sh
   PKGARCH:=all
-  MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
 endef
 
 define Package/acme/description
@@ -47,6 +49,7 @@ define Build/Compile
 endef
 
 define Package/acme/install
+	$(INSTALL_DIR) $(1)/etc/acme
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/acme.config $(1)/etc/config/acme
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -56,14 +59,30 @@ define Package/acme/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/acme.sh $(1)/usr/lib/acme/acme.sh
 endef
 
+define Package/acme-dnsapi
+  SECTION:=net
+  CATEGORY:=Network
+  DEPENDS:=+acme
+  TITLE:=DNS API integration for ACME (Letsencrypt) client
+  PKGARCH:=all
+endef
+
+define Package/acme-dnsapi/description
+ This package provides DNS API integration for ACME (Letsencrypt) client.
+endef
+
+define Package/acme-dnsapi/install
+	$(INSTALL_DIR) $(1)/usr/lib/acme/dnsapi
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/dnsapi/*.sh $(1)/usr/lib/acme/dnsapi
+endef
+
 define Package/luci-app-acme
   SECTION:=luci
   CATEGORY:=LuCI
   TITLE:=ACME package - LuCI interface
-  MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
-  PKGARCH:=all
-  DEPENDS:= lua luci-base +acme luci-app-uhttpd
+  DEPENDS:= lua luci-base +acme
   SUBMENU:=3. Applications
+  PKGARCH:=all
 endef
 
 define Package/luci-app-acme/description
@@ -90,8 +109,10 @@ uci -q get ucitrack.@acme[0] > /dev/null && {
   uci delete ucitrack.@acme[0]
   uci commit
 }
+exit 0
 endef
 
 
 $(eval $(call BuildPackage,acme))
+$(eval $(call BuildPackage,acme-dnsapi))
 $(eval $(call BuildPackage,luci-app-acme))

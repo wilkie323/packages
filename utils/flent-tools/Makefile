@@ -8,20 +8,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=flent-tools
-PKG_VERSION:=1.0.1
-PKG_LICENSE:=GPLv3
+PKG_VERSION:=1.2.2
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REV).tar.gz
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/tohojo/flent
-PKG_REV:=03c72cc340def354024351b6500774b11170d5ba
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=$(PKG_REV)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/tohojo/flent/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=554bb1b5329cd39113cbb34445765ca6868dbf033aa64832d957d4a09d56adc7
+PKG_BUILD_DIR:=$(BUILD_DIR)/flent-$(PKG_VERSION)
+
+PKG_LICENSE:=GPL-3.0-only
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/flent-tools
-  SECTION:=util
+  SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Helper programs for the Flent test tool
   URL:=https://flent.org

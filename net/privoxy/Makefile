@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2016 OpenWrt.org
+# Copyright (C) 2006-2017 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,20 +8,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=privoxy
-PKG_VERSION:=3.0.26
-PKG_RELEASE:=2
+PKG_VERSION:=3.0.28
+PKG_RELEASE:=1
 
 PKG_SOURCE:=privoxy-$(PKG_VERSION)-stable-src.tar.gz
 PKG_SOURCE_URL:=@SF/ijbswa
-PKG_MD5SUM:=8a1c842112ccea68c19b7ceb4a0e999f
+PKG_HASH:=b5d78cc036aaadb3b7cf860e9d598d7332af468926a26e2d56167f1cb6f2824a
 PKG_BUILD_DIR:=$(BUILD_DIR)/privoxy-$(PKG_VERSION)-stable
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:privoxy:privoxy
 
-PKG_MAINTAINER:=Christian Schoenebeck <christian.schoenebeck@gmail.com>
+PKG_MAINTAINER:=
 
 PKG_CONFIG_DEPENDS:= \
   CONFIG_IPV6 \
@@ -49,7 +50,7 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)
+define Package/privoxy
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Web Servers/Proxies
@@ -61,12 +62,12 @@ define Package/$(PKG_NAME)
 endef
 
 # shown in LuCI package description
-define Package/$(PKG_NAME)/description
+define Package/privoxy/description
 $(TITLE) - Homepage: www.privoxy.org
 endef
 
 # shown in make menuconfig <Help>
-define Package/$(PKG_NAME)/config
+define Package/privoxy/config
 	help
 		Privoxy is a web proxy with advanced filtering capabilities for protecting
 		privacy, modifying web page content, managing cookies, controlling access,
@@ -77,7 +78,6 @@ define Package/$(PKG_NAME)/config
 		Run as : $(USERID)
 		Version: $(PKG_VERSION)-$(PKG_RELEASE)
 		Home   : $(URL)
-		$(PKG_MAINTAINER)
 
 	source "$(SOURCE)/Config.in"
 endef
@@ -110,14 +110,14 @@ CONFIGURE_ARGS += \
 # needed otherwise errors during compile
 MAKE_FLAGS:=
 
-define Package/$(PKG_NAME)/conffiles
+define Package/privoxy/conffiles
 /etc/config/privoxy
 /etc/privoxy/user.action
 /etc/privoxy/user.filter
 /etc/privoxy/user.trust
 endef
 
-define Package/$(PKG_NAME)/preinst
+define Package/privoxy/preinst
 	#!/bin/sh
 	[ -n "$${IPKG_INSTROOT}" ] && exit 0	# if run within buildroot exit
 
@@ -127,7 +127,7 @@ define Package/$(PKG_NAME)/preinst
 	exit 0	# suppress errors from stop command
 endef
 
-define Package/$(PKG_NAME)/install
+define Package/privoxy/install
 	if [ -f $(PKG_INSTALL_DIR)/etc/privoxy/trust ]; then \
 		mv -f $(PKG_INSTALL_DIR)/etc/privoxy/trust $(PKG_INSTALL_DIR)/etc/privoxy/user.trust; \
 	fi
@@ -155,10 +155,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_CONF) ./files/privoxy.config $(1)/etc/config/privoxy
 endef
 
-define Package/$(PKG_NAME)/postinst
+define Package/privoxy/postinst
 	#!/bin/sh
 	grep -i privoxy $${IPKG_INSTROOT}/etc/services >/dev/null 2>&1 || \
 		echo -e "privoxy\t8118" >> $${IPKG_INSTROOT}/etc/services
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,privoxy))

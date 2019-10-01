@@ -9,8 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libavl
 PKG_VERSION:=0.3.5
-PKG_RELEASE:=1
-PKG_MD5SUM:=882c68ea7f71876ca110f3b84d7ab12d
+PKG_RELEASE:=2
+PKG_HASH:=4497b9e22cdd61ae2fa893b9d5fd6213dc306726d7c4be08c29e173622dca8a0
 
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION).orig.tar.gz
 PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/liba/libavl
@@ -18,7 +18,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/avl-$(PKG_VERSION)
 PKG_INSTALL:=1
 
 PKG_MAINTAINER:=Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
-PKG_LICENSE:=LGPL-2.0+
+PKG_LICENSE:=LGPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
 
 include $(INCLUDE_DIR)/package.mk

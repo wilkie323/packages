@@ -8,17 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=monit
-PKG_VERSION:=5.18
+PKG_VERSION:=5.26.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://mmonit.com/monit/dist
-PKG_MD5SUM:=a1bfac0fbb83439435f8616200d2364d
+PKG_SOURCE_URL:=https://mmonit.com/monit/dist
+PKG_HASH:=87fc4568a3af9a2be89040efb169e3a2e47b262f99e78d5ddde99dd89f02f3c2
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_LICENSE:=AGPL-3.0
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:tildeslash:monit
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -26,9 +28,9 @@ include $(INCLUDE_DIR)/package.mk
 define Package/monit/Default
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:= +libpthread
+  DEPENDS:= +libpthread +zlib
   TITLE:=System services monitoring utility
-  URL:=http://mmonit.com/monit/
+  URL:=https://mmonit.com/monit/
   MAINTAINER:=Etienne CHAMPETIER <champetier.etienne@gmail.com>
 endef
 
@@ -61,6 +63,7 @@ endef
 
 CONFIGURE_ARGS += \
 	--without-pam \
+	ac_cv_ipv6=$(if $(CONFIG_IPV6),yes,no) \
 	libmonit_cv_setjmp_available=yes \
 	libmonit_cv_vsnprintf_c99_conformant=yes
 

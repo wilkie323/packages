@@ -8,12 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sqm-scripts
-PKG_SOURCE_VERSION:=70a22d6d19d4411f004c5257ee15fb1f103b46c9
-PKG_VERSION:=1.1.1
+PKG_SOURCE_VERSION:=ab763cba8b1516b3afa99760e0ca884f8b8d93b8
+PKG_VERSION:=1.4.0
 PKG_RELEASE:=1
 PKG_LICENSE:=GPLv2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.xz
+PKG_MIRROR_HASH:=00bc93f667ad417d4ba9bea4a01d87e3c670a294f61de13348a0f71e7700241f
 PKG_SOURCE_URL:=https://github.com/tohojo/sqm-scripts.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
@@ -24,7 +25,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sqm-scripts
   SECTION:=net
   CATEGORY:=Base system
-  DEPENDS:=+tc +kmod-sched +kmod-sched-cake +kmod-ifb +iptables \
+  DEPENDS:=+tc +kmod-sched-core +kmod-sched-cake +kmod-ifb +iptables \
 	+iptables-mod-ipopt +iptables-mod-conntrack-extra
   TITLE:=SQM Scripts (QoS)
   PKGARCH:=all
@@ -50,7 +51,7 @@ define Package/luci-app-sqm
   TITLE:=SQM Scripts - LuCI interface
   MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
   PKGARCH:=all
-  DEPENDS:= lua luci-base +sqm-scripts
+  DEPENDS:= +lua +luci-base +sqm-scripts
   SUBMENU:=3. Applications
 endef
 
@@ -80,7 +81,7 @@ uci -q get ucitrack.@sqm[0] > /dev/null && {
   uci delete ucitrack.@sqm[0]
   uci del_list ucitrack.@firewall[0].affects=sqm
   uci commit
-}
+} || exit 0
 endef
 
 $(eval $(call BuildPackage,sqm-scripts))

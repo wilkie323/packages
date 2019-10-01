@@ -1,6 +1,3 @@
-#
-# Copyright (C) 2006-2014 OpenWrt.org
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -8,9 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=opentracker
-PKG_VERSION:=20151211
-PKG_RELEASE:=2
-PKG_REV:=ba25d2b2a84a31eac2956b71cb12b4b0748b35f5
+PKG_VERSION:=20180526
+PKG_RELEASE:=1
+PKG_REV:=6411f1567f64248b0d145493c2e61004d2822623
+PKG_MIRROR_HASH:=bf4b0f16c38eb17ff5cc8e2a8d6d98f26b9de500fecd80436e9b0a75d0a2bde2
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=Beerware
 

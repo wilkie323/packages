@@ -8,14 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=owfs
-PKG_VERSION:=2.9p5
-PKG_RELEASE:=1
+PKG_VERSION:=3.2p3
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/$(PKG_NAME)
-PKG_MD5SUM:=b5c20998e8ffc6fa3974daef99c02402
+PKG_SOURCE_URL:=https://github.com/owfs/owfs/releases/download/v$(PKG_VERSION)
+PKG_HASH:=b8d33eba57d4a2f6c8a11ff23f233e3248bd75a42c8219b058a888846edd8717
+
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
+PKG_CPE_ID:=cpe:/a:owfs:owfs
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -34,15 +36,15 @@ include $(INCLUDE_DIR)/package.mk
 # templates
 #
 
-define Package/$(PKG_NAME)/Default
+define Package/owfs/Default
   TITLE:=OWFS (1-Wire File System)
-  URL:=http://owfs.sourceforge.net/
+  URL:=https://github.com/owfs/owfs
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Filesystem
 endef
 
-define Package/$(PKG_NAME)/Default/description
+define Package/owfs/Default/description
   OWFS is a suite of programs that designed to make the 1-wire bus and its
   devices easily accessible. The underlying principle is to create a virtual
   filesystem, with the unique ID being the directory, and the individual
@@ -94,7 +96,7 @@ define Package/libow/config
 endef
 
 define Package/libow/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS library.
 endef
@@ -106,7 +108,7 @@ define Package/libow-capi
 endef
 
 define Package/libow-capi/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS C-API library.
 endef
@@ -118,11 +120,10 @@ endef
 define Package/owshell
   $(call Package/owfs/Utility)
   TITLE:=OWFS - shell utilities
-  DEPENDS+= +USE_UCLIBC:librpc
 endef
 
 define Package/owshell/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS shell utilities.
 endef
@@ -135,7 +136,7 @@ define Package/owfs
 endef
 
 define Package/owfs/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS fuse filesystem.
 endef
@@ -150,7 +151,7 @@ define Package/owhttpd
 endef
 
 define Package/owhttpd/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS http server.
 endef
@@ -161,7 +162,7 @@ define Package/owftpd
 endef
 
 define Package/owftpd/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS ftp server.
 endef
@@ -172,7 +173,7 @@ define Package/owserver
 endef
 
 define Package/owserver/description
-  $(call Package/$(PKG_NAME)/Default/description)
+  $(call Package/owfs/Default/description)
 
   This package contains the OWFS network server.
 endef
@@ -191,6 +192,7 @@ CONFIGURE_ARGS += \
 	--disable-owphp \
 	--disable-owtcl \
 	--disable-swig \
+	--disable-avahi \
 	$(if $(CONFIG_LIBOW_MASTER_USB),--enable-usb,--disable-usb) \
 	$(if $(CONFIG_LIBOW_MASTER_W1),--enable-w1,--disable-w1) \
 	$(if $(CONFIG_LIBOW_MASTER_I2C),--enable-i2c,--disable-i2c) \

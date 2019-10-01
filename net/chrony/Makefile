@@ -8,18 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chrony
-PKG_VERSION:=2.4.1
-PKG_RELEASE:=2
+PKG_VERSION:=3.5
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://download.tuxfamily.org/chrony/
-PKG_MD5SUM:=d08dd5a7d79a89891d119adcccb4397d
+PKG_HASH:=4e02795b1260a4ec51e6ace84149036305cc9fc340e65edb9f8452aa611339b5
 
 PKG_MAINTAINER:=Miroslav Lichvar <mlichvar0@gmail.com>
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:tuxfamily:chrony
 
-PKG_BUILD_DEPENDS:=+pps-tools
+PKG_BUILD_DEPENDS:=pps-tools
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -50,9 +51,10 @@ CONFIGURE_ARGS+= \
 	--host-system=Linux \
 	--sysconfdir=/etc/chrony \
 	--prefix=/usr \
-	--chronysockdir=/var/run/chrony \
+	--chronyrundir=/var/run/chrony \
 	--disable-readline \
 	--disable-rtc \
+	--disable-sechash \
 	--with-user=chrony
 
 CONFIGURE_VARS+=CPPFLAGS=-DNDEBUG

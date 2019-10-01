@@ -9,13 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=c-ares
-PKG_VERSION:=1.11.0
-PKG_RELEASE:=1
+PKG_VERSION:=1.15.0
+PKG_RELEASE:=4
 PKG_LICENSE:=MIT
+PKG_CPE_ID:=cpe:/a:c-ares_project:c-ares
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://c-ares.haxx.se/download
-PKG_MD5SUM:=d5c6d522cfc54bb6f215a0b7912d46be
+PKG_SOURCE_URL:=https://c-ares.haxx.se/download
+PKG_HASH:=6cdb97871f2930530c97deb7cf5c8fa4be5a0b02c7cea6e7c7667672a39d6852
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -30,7 +31,7 @@ define Package/libcares
   CATEGORY:=Libraries
   TITLE:=Library for asyncronous DNS Requests (including name resolves)
   URL:=http://c-ares.haxx.se/
-  MAINTAINER:=Karl Palsson <karlp@remake.is>
+  MAINTAINER:=Karl Palsson <karlp@etactica.com>
 endef
 
 define Package/libcares/description

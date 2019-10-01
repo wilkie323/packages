@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fastd
 PKG_VERSION:=18
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/86
-PKG_MD5SUM:=e53236d3049f64f7955ad9556da099eb
+PKG_SOURCE_URL:=https://github.com/NeoRaider/fastd/releases/download/v$(PKG_VERSION)
+PKG_HASH:=714ff09d7bd75f79783f744f6f8c5af2fe456c8cf876feaa704c205a73e043c9
 
 PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=COPYRIGHT
@@ -53,7 +53,7 @@ define Package/fastd
   CATEGORY:=Network
   DEPENDS:=+kmod-tun +librt +libpthread +libuecc +FASTD_WITH_STATUS_SOCKET:libjson-c +FASTD_WITH_CAPABILITIES:libcap
   TITLE:=Fast and Secure Tunneling Daemon
-  URL:=https://projects.universe-factory.net/projects/fastd
+  URL:=https://github.com/NeoRaider/fastd/
   SUBMENU:=VPN
 endef
 
