@@ -8,19 +8,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=radicale
 PKG_VERSION:=1.1.6
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
-PKG_SOURCE:=Radicale-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/R/Radicale
+PYPI_NAME:=Radicale
 PKG_HASH:=c007198ea45ef797344672c681d4c13f8b4aa85c15c41a1156225767a405c92b
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/Radicale-$(PKG_VERSION)
 
 PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:radicale:radicale
 
+include ../../lang/python/pypi.mk
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/python/python3-package.mk
 
@@ -39,7 +37,6 @@ define Package/radicale
       +python3-xml
   USERID:=radicale=5232:radicale=5232
   PROVIDES:=radicale-py2 radicale-py3
-  VARIANT:=python3
 endef
 
 define Package/radicale/description

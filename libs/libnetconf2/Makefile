@@ -8,19 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libnetconf2
-PKG_VERSION:=0.12-r1
-PKG_RELEASE:=4
+PKG_VERSION:=1.1.26
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/CESNET/libnetconf2/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=86269d3f1bc85bb17d8823d214f9a676ee3b14ee18a0b87a230380df8503e8f5
+PKG_HASH:=2ce2b819f3544fd46a3a4c8ba6dd0a3798cab2a63aa347bc1eb5275a2c89b7bd
 
-PKG_MAINTAINER:=Mislav Novakovic <mislav.novakovic@sartura.hr>
+PKG_MAINTAINER:=Jakov Smolic <jakov.smolic@sartura.hr>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_PARALLEL:=1
 CMAKE_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -40,16 +40,9 @@ define Package/libnetconf2/description
  SSH, to send and receive NETCONF messages. NETCONF datastore implementation is not included.
 endef
 
-CMAKE_OPTIONS += \
-	-DCMAKE_INSTALL_PREFIX:PATH=/usr \
-	-DCMAKE_BUILD_TYPE:STRING=Release
-
 define Package/libnetconf2/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libnetconf2.so* $(1)/usr/lib/
-
-	$(INSTALL_DIR) $(1)/usr/share/libnetconf2
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/libnetconf2/*.yin $(1)/usr/share/libnetconf2/
 endef
 
 $(eval $(call BuildPackage,libnetconf2))

@@ -1,5 +1,3 @@
-diff --git a/lib/asyncsocket/asyncsocket.c b/lib/asyncsocket/asyncsocket.c
-index e0a68e7e..b9675674 100644
 --- a/lib/asyncsocket/asyncsocket.c
 +++ b/lib/asyncsocket/asyncsocket.c
 @@ -86,7 +86,7 @@
@@ -11,24 +9,20 @@ index e0a68e7e..b9675674 100644
  #include "log.h"
  #include "err.h"
  #include "hostinfo.h"
-diff --git a/lib/hgfsServer/hgfsServer.c b/lib/hgfsServer/hgfsServer.c
-index 991a7941..ed0c09f9 100644
 --- a/lib/hgfsServer/hgfsServer.c
 +++ b/lib/hgfsServer/hgfsServer.c
-@@ -48,7 +48,7 @@
- #include "hgfsServerOplock.h"
+@@ -49,7 +49,7 @@
  #include "hgfsDirNotify.h"
+ #include "hgfsThreadpool.h"
  #include "userlock.h"
 -#include "poll.h"
 +#include "vm_poll.h"
  #include "mutexRankLib.h"
  #include "vm_basic_asm.h"
  #include "unicodeOperations.h"
-diff --git a/lib/include/asyncsocket.h b/lib/include/asyncsocket.h
-index 524147ea..103f944f 100644
 --- a/lib/include/asyncsocket.h
 +++ b/lib/include/asyncsocket.h
-@@ -164,7 +164,7 @@ typedef struct AsyncSocket AsyncSocket;
+@@ -169,7 +169,7 @@ typedef struct AsyncSocket AsyncSocket;
   * Or the client can specify its favorite poll class and locking behavior.
   * Use of IVmdbPoll is only supported for regular sockets and for Attach.
   */
@@ -37,8 +31,6 @@ index 524147ea..103f944f 100644
  struct IVmdbPoll;
  typedef struct AsyncSocketPollParams {
     int flags;               /* Default 0, only POLL_FLAG_NO_BULL is valid */
-diff --git a/lib/include/pollImpl.h b/lib/include/pollImpl.h
-index 46442e55..8bc66997 100644
 --- a/lib/include/pollImpl.h
 +++ b/lib/include/pollImpl.h
 @@ -44,7 +44,7 @@
@@ -51,23 +43,9 @@ index 46442e55..8bc66997 100644
  
  #if defined(__cplusplus)
 diff --git a/lib/include/poll.h b/lib/include/vm_poll.h
-similarity index 99%
-rename from a/lib/include/poll.h
-rename to a/lib/include/vm_poll.h
-index 988fe6d0..e9e74fb5 100644
---- a/lib/include/poll.h
-+++ b/lib/include/vm_poll.h
-@@ -60,7 +60,7 @@ extern "C" {
- #if !defined(TARGET_OS_IPHONE) || TARGET_OS_IPHONE == 0
- #include <sys/kernel.h>
- #endif
--#include <sys/poll.h>
-+#include <poll.h>
- #define HZ 100
- #endif
- #ifdef __ANDROID__
+rename from lib/include/poll.h
+rename to lib/include/vm_poll.h
 diff --git a/lib/rpcIn/rpcin.c b/lib/rpcIn/rpcin.c
-index c2c51583..d6c62f10 100644
 --- a/lib/rpcIn/rpcin.c
 +++ b/lib/rpcIn/rpcin.c
 @@ -57,7 +57,7 @@
@@ -79,16 +57,3 @@ index c2c51583..d6c62f10 100644
  #  include "asyncsocket.h"
  #  include "vmci_defs.h"
  #include "dataMap.h"
-diff --git a/services/plugins/grabbitmqProxy/grabbitmqProxyPlugin.c b/services/plugins/grabbitmqProxy/grabbitmqProxyPlugin.c
-index 03700937..f0b49ad7 100644
---- a/services/plugins/grabbitmqProxy/grabbitmqProxyPlugin.c
-+++ b/services/plugins/grabbitmqProxy/grabbitmqProxyPlugin.c
-@@ -48,7 +48,7 @@
- #include "rpcout.h"
- #include "rabbitmqProxyConst.h"
- #include "vm_basic_types.h"
--#include "poll.h"
-+#include "vm_poll.h"
- #ifdef OPEN_VM_TOOLS
- #include "vmci_sockets.h"
- #include "sslDirect.h"

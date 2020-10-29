@@ -9,21 +9,21 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=xtables-addons
-PKG_VERSION:=3.5
+PKG_VERSION:=3.10
 PKG_RELEASE:=1
-PKG_HASH:=189ff57a0b8960969bd99141a6c79c345efa67e4461f450e2f162c9bd3d17da6
+PKG_HASH:=b783ecbab46ff3534a0aaff2baacc79553f685697b1f034ca61698443b8210dc
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@SF/xtables-addons
+PKG_SOURCE_URL:=https://inai.de/files/xtables-addons/
 PKG_BUILD_DEPENDS:=iptables
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_CHECK_FORMAT_SECURITY:=0
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
 
 PKG_FIXUP:=autoreconf
+PKG_ASLR_PIE:=0
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -32,7 +32,7 @@ define Package/xtables-addons
   CATEGORY:=Network
   SUBMENU:=Firewall
   TITLE:=Extensions not distributed in the main Xtables
-  URL:=http://xtables-addons.sourceforge.net/
+  URL:=https://inai.de/projects/xtables-addons/
 endef
 
 # uses GNU configure
@@ -133,11 +133,10 @@ define Package/iptgeoip
   $(call Package/xtables-addons)
   CATEGORY:=Network
   TITLE:=iptables-mod-geoip support scripts for MaxMind GeoIP databases
-  # we could also use wget-nossl but that's more complicated than our
-  # syntax of dependencies permits...
   DEPENDS:=iptables +iptables-mod-geoip \
 		+perl +perlbase-getopt +perlbase-io +perl-text-csv_xs \
-		+!BUSYBOX_CONFIG_WGET:wget +!BUSYBOX_CONFIG_GZIP:gzip +!BUSYBOX_CONFIG_UNZIP:unzip
+		+perl-net-cidr-lite \
+		+wget-ssl +!BUSYBOX_CONFIG_ZCAT:gzip
 endef
 
 define Package/iptgeoip/install

@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tor
-PKG_VERSION:=0.4.1.5
+PKG_VERSION:=0.4.4.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://dist.torproject.org/ \
 	https://archive.torproject.org/tor-package-archive
-PKG_HASH:=a864e0b605fb933fcc167bf242eed4233949e8a1bf23ac8e0381b106cd920425
+PKG_HASH:=a45ca00afe765e3baa839767c9dd6ac9a46dd01720a3a8ff4d86558c12359926
 PKG_MAINTAINER:=Hauke Mehrtens <hauke@hauke-m.de> \
 		Peter Wagner <tripolar@gmx.at>
 PKG_LICENSE_FILES:=LICENSE
@@ -89,6 +89,7 @@ define Package/tor/conffiles
 /etc/tor/torrc
 /var/lib/tor/fingerprint
 /var/lib/tor/keys/*
+/etc/config/tor
 endef
 
 CONFIGURE_ARGS += \
@@ -102,20 +103,15 @@ CONFIGURE_ARGS += \
 	--disable-lzma \
 	--disable-zstd \
 	--with-tor-user=tor \
-	--with-tor-group=tor
+	--with-tor-group=tor \
+	--enable-pic
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto
 TARGET_LDFLAGS += -Wl,--gc-sections -flto
 
-ifneq ($(CONFIG_SSP_SUPPORT),y)
-	CONFIGURE_ARGS += \
-		--disable-gcc-hardening
-else
-	EXTRA_CFLAGS += $(FPIC)
-endif
-
 CONFIGURE_VARS += \
-	CROSS_COMPILE="yes"
+	CROSS_COMPILE="yes" \
+	ac_cv_func_mallinfo=no
 
 define Package/tor/install
 	$(INSTALL_DIR) $(1)/usr/sbin
@@ -124,6 +120,8 @@ define Package/tor/install
 	$(INSTALL_BIN) ./files/tor.init $(1)/etc/init.d/tor
 	$(INSTALL_DIR) $(1)/etc/tor
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/tor/torrc.sample $(1)/etc/tor/torrc
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/tor.conf $(1)/etc/config/tor
 endef
 
 define Package/tor-gencert/install

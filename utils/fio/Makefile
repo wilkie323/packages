@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fio
-PKG_VERSION:=3.15
+PKG_VERSION:=3.20
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://brick.kernel.dk/snaps
-PKG_HASH:=246369954833e0d6be5ef4f9c47968adafcb4a0751badca2cdd80700b4bc5784
+PKG_HASH:=87a539ecebce3d8281ff9c653e9978302f91c72534273e85ef37a980ac5398d7
 
-PKG_MAINTAINER:=Rosen Penev <rosenp@gmail.com>
+PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
 
@@ -53,6 +53,9 @@ CONFIGURE_ARGS = \
 	--disable-lex \
 	--disable-pmem \
 	--disable-native \
+	--disable-shm \
+	--disable-optimizations \
+	--disable-tcmalloc \
 	--cc="$(TARGET_CC)" \
 	--extra-cflags="$(TARGET_CFLAGS)" \
 	--prefix="$(CONFIGURE_PREFIX)"
